@@ -76,6 +76,7 @@ class DeviceController extends TableController
             'status' => 'status',
             'icon' => 'icon',
             'hostname' => 'hostname',
+            //18.10.24 - M. Coric - isključujem 'display' => 'display', // 17.10.2024 -Osta dodao da radi sort i po ovoj koloni iz tabele devices
             'hardware' => 'hardware',
             'os' => 'os',
             'uptime' => \DB::raw('IF(`status` = 1, `uptime`, `last_polled` - NOW())'),
