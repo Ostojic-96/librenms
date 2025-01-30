@@ -180,18 +180,6 @@ function get_port_by_id($port_id)
     }
 }
 
-function get_device_id_by_port_id($port_id)
-{
-    if (is_numeric($port_id)) {
-        $device_id = dbFetchCell('SELECT `device_id` FROM `ports` WHERE `port_id` = ?', [$port_id]);
-        if (is_numeric($device_id)) {
-            return $device_id;
-        } else {
-            return false;
-        }
-    }
-}
-
 function ifclass($ifOperStatus, $ifAdminStatus)
 {
     // fake a port model
@@ -215,21 +203,6 @@ function device_by_id_cache($device_id, $refresh = false)
     return $device;
 }
 
-function truncate($substring, $max = 50, $rep = '...')
-{
-    if (strlen($substring) < 1) {
-        $string = $rep;
-    } else {
-        $string = $substring;
-    }
-    $leave = $max - strlen($rep);
-    if (strlen($string) > $max) {
-        return substr_replace($string, $rep, $leave);
-    } else {
-        return $string;
-    }
-}
-
 function gethostbyid($device_id)
 {
     return DeviceCache::get((int) $device_id)->hostname;
@@ -243,11 +216,6 @@ function getifbyid($id)
 function getidbyname($hostname)
 {
     return DeviceCache::getByHostname($hostname)->device_id;
-}
-
-function zeropad($num, $length = 2)
-{
-    return str_pad($num, $length, '0', STR_PAD_LEFT);
 }
 
 function set_dev_attrib($device, $attrib_type, $attrib_value)
@@ -388,22 +356,6 @@ function is_customoid_graph($type, $subtype)
 
     return false;
 } // is_customoid_graph
-
-/**
- * Parse location field for coordinates
- *
- * @param string location The location field to look for coords in.
- * @return array|bool Containing the lat and lng coords
- **/
-function parse_location($location)
-{
-    preg_match('/\[(-?[0-9. ]+), *(-?[0-9. ]+)\]/', $location, $tmp_loc);
-    if (is_numeric($tmp_loc[1]) && is_numeric($tmp_loc[2])) {
-        return ['lat' => $tmp_loc[1], 'lng' => $tmp_loc[2]];
-    }
-
-    return false;
-}//end parse_location()
 
 /**
  * Convert a MySQL binary v4 (4-byte) or v6 (16-byte) IP address to a printable string.
