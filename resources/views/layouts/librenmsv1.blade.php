@@ -65,7 +65,7 @@
     <script src="{{ asset('js/mktree.js') }}"></script>
     <script src="{{ asset('js/jquery.bootgrid.min.js') }}"></script>
     <script src="{{ asset('js/handlebars.min.js') }}"></script>
-    <script src="{{ asset('js/pace.min.js') }}"></script>
+    <script data-pace-options='{ "eventLag": { "lagThreshold": 30 } }' src="{{ asset('js/pace.min.js') }}"></script>
     <script src="{{ asset('js/qrcode.min.js') }}"></script>
     <script src="{{ asset('js/select2.min.js') }}"></script>
     <script>
@@ -83,9 +83,9 @@
     <script>
         // Apply color scheme
         if ('{{ LibreNMS\Config::get('applied_site_style') }}' === 'dark') {
-            document.documentElement.classList.add('tw-dark')
+            document.documentElement.classList.add('tw:dark')
         } else {
-            document.documentElement.classList.remove('tw-dark')
+            document.documentElement.classList.remove('tw:dark')
         }
     </script>
     @auth
