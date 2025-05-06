@@ -21,8 +21,12 @@
 
 //We can use RFC1213 or IP-FORWARD-MIB or MPLS-L3VPN-STD-MIB
 
+use App\Facades\PortCache;
+use Illuminate\Support\Facades\Log;
 use LibreNMS\Config;
+use LibreNMS\Exceptions\InvalidIpException;
 use LibreNMS\Util\IPv4;
+use LibreNMS\Util\IPv6;
 
 $ipForwardMibRoutesNumber = snmp_get($device, 'IP-FORWARD-MIB::inetCidrRouteNumber.0', '-Osqn');
 
@@ -59,6 +63,61 @@ foreach ($dbRoute as $dbRow) {
 
 if (file_exists(Config::get('install_dir') . "/includes/discovery/route/{$device['os']}.inc.php")) {
     include Config::get('install_dir') . "/includes/discovery/route/{$device['os']}.inc.php";
+}
+
+Log::info('IPV6-MIB::ipv6RouteTable');
+$oids = SnmpQuery::hideMib()->walk('IPV6-MIB::ipv6RouteTable')->table(3);
+
+foreach ($oids as $dst => $tdata) {
+    if ($dst == 'fe80:0:0:0:0:0:0:0') { // routeros v7.18.2
+        continue;
+    }
+
+    $inetCidrRoutePfxLen = key($tdata);
+    $tdata = array_shift($tdata);
+
+    foreach ($tdata as $timestamp => $data) {
+        try {
+            $ipv6dst = IPv6::fromHexString($dst);
+            $inetCidrRouteDest = $ipv6dst->uncompressed();
+            $ipv6hop = IPv6::fromHexString($data['ipv6RouteNextHop']);
+            $inetCidrRouteNextHop = $ipv6hop->uncompressed();
+            $ifIndex = $data['ipv6RouteIfIndex'];
+            $portId = PortCache::getIdFromIfIndex($ifIndex, $device['device_id']);
+
+            $routeType = 'ipv6';
+            $inetCidrRoutePolicy = $data['ipv6RoutePolicy'] ?? 0;
+
+            $entryClean = [
+                'updated_at' => $update_timestamp,
+                'device_id' => $device['device_id'],
+                'port_id' => $portId,
+                'context_name' => '',
+                'inetCidrRouteIfIndex' => $ifIndex,
+                'inetCidrRouteType' => $data['ipv6RouteType'] ?? 0,
+                'inetCidrRouteProto' => $data['ipv6RouteProtocol'] ?? 0,
+                'inetCidrRouteNextHopAS' => '0',
+                'inetCidrRouteMetric1' => $data['ipv6RouteMetric'] ?? 0,
+                'inetCidrRouteDestType' => $routeType,
+                'inetCidrRouteDest' => $inetCidrRouteDest,
+                'inetCidrRouteNextHopType' => $routeType,
+                'inetCidrRouteNextHop' => $inetCidrRouteNextHop,
+                'inetCidrRouteNextHopType' => $routeType,
+                'inetCidrRoutePolicy' => $inetCidrRoutePolicy,
+                'inetCidrRoutePfxLen' => $inetCidrRoutePfxLen,
+            ];
+
+            $current = $mixed[''][$routeType][$inetCidrRouteDest][$inetCidrRoutePfxLen][$inetCidrRoutePolicy][$routeType][$inetCidrRouteNextHop];
+            if (isset($current) && isset($current['db']) && count($current['db']) > 0 && $delete_row[$current['db']['route_id']] != 1) {
+                $update_row[] = $entryClean;
+            } else {
+                $entry['created_at'] = ['NOW()'];
+                $create_row[] = $entryClean;
+            }
+        } catch (InvalidIpException $e) {
+            Log::error('Failed to parse IP: ' . $e->getMessage());
+        }
+    }
 }
 
 //Not a single route will be discovered if the amount is over maximum
@@ -99,7 +158,11 @@ if (! isset($ipForwardNb['0']['inetCidrRouteNumber']) && $device['os'] != 'route
         $entryClean['device_id'] = $device['device_id'];
         $entryClean['port_id'] = \App\Facades\PortCache::getIdFromIfIndex($entryClean['inetCidrRouteIfIndex'], $device['device_id']);
         $entryClean['updated_at'] = $update_timestamp;
-        $current = $mixed['']['ipv4'][$inetCidrRouteDest][$inetCidrRoutePfxLen][$entryClean['inetCidrRoutePolicy']]['ipv4'][$inetCidrRouteNextHop];
+
+        if (! empty($mixed)) {
+            $current = $mixed['']['ipv4'][$ipRoute['ipRouteDest']][$inetCidrRoutePfxLen][$entryClean['inetCidrRoutePolicy']]['ipv4'][$ipRoute['ipRouteNextHop']];
+        }
+
         if (isset($current) && isset($current['db']) && count($current['db']) > 0 && $delete_row[$current['db']['route_id']] != 1) {
             //we already have a row in DB
             $entryClean['route_id'] = $current['db']['route_id'];
@@ -150,17 +213,21 @@ if (isset($ipForwardNb['0']['inetCidrRouteNumber']) && $ipForwardNb['0']['inetCi
                     unset($entry['inetCidrRouteMetric4']);
                     unset($entry['inetCidrRouteMetric5']);
                     unset($entry['inetCidrRouteStatus']);
-                    $entryPerType[$inetCidrRouteDestType]++;
-                    $current = $mixed[''][$inetCidrRouteDestType][$inetCidrRouteDest][$inetCidrRoutePfxLen][$inetCidrRoutePolicy][$inetCidrRouteNextHopType][$inetCidrRouteNextHop];
-                    if (! empty($current['db']) && $delete_row[$current['db']['route_id']] != 1) {
+                    isset($entryPerType[$inetCidrRouteDestType]) ? $entryPerType[$inetCidrRouteDestType]++ : $entryPerType[$inetCidrRouteDestType] = 1;
+
+                    $current = $mixed[''][$inetCidrRouteDestType][$inetCidrRouteDest][$inetCidrRoutePfxLen][$inetCidrRoutePolicy][$inetCidrRouteNextHopType][$inetCidrRouteNextHop] ?? null;
+                    if (isset($current) && ! empty($current['db']) && $delete_row[$current['db']['route_id']] != 1) {
                         //we already have a row in DB
                         $entry['route_id'] = $current['db']['route_id'];
                         $update_row[] = $entry;
                     } else {
                         d_echo(isset($current));
                         d_echo(isset($current['db']));
-                        d_echo($current['db']);
-                        d_echo($delete_row[$current['db']['route_id']]);
+                        if (is_array($current)) {
+                            d_echo($current['db']);
+                            d_echo($delete_row[$current['db']['route_id']]);
+                        }
+
                         $entry['created_at'] = ['NOW()'];
                         $create_row[] = $entry;
                     }
@@ -246,6 +313,9 @@ if ($mpls_skip == false) {
     $oid = 'mplsL3VpnVrfRteTable';
     $mpls_route_table = snmpwalk_group($device, $oid, $mib, 7, []);
     foreach ($mpls_route_table as $vpnId => $inetCidrRouteTable) {
+        if (! is_array($inetCidrRouteTable)) {
+            continue;
+        }
         foreach ($inetCidrRouteTable as $inetCidrRouteDestType => $next1) {
             //ipv4 or ipv6
             foreach ($next1 as $inetCidrRouteDest => $next2) {
