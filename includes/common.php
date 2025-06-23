@@ -150,20 +150,6 @@ function get_port_rrdfile_path($hostname, $port_id, $suffix = '')
     return Rrd::name($hostname, Rrd::portName($port_id, $suffix));
 }
 
-function get_port_by_index_cache($device_id, $ifIndex)
-{
-    global $port_index_cache;
-
-    if (isset($port_index_cache[$device_id][$ifIndex]) && is_array($port_index_cache[$device_id][$ifIndex])) {
-        $port = $port_index_cache[$device_id][$ifIndex];
-    } else {
-        $port = get_port_by_ifIndex($device_id, $ifIndex);
-        $port_index_cache[$device_id][$ifIndex] = $port;
-    }
-
-    return $port;
-}
-
 function get_port_by_ifIndex($device_id, $ifIndex)
 {
     return dbFetchRow('SELECT * FROM `ports` WHERE `device_id` = ? AND `ifIndex` = ?', [$device_id, $ifIndex]);
@@ -331,23 +317,6 @@ function generate_smokeping_file($device, $file = '')
 
     return $smokeping->generateFileName($file);
 }
-
-/*
- * @return rounded value to 10th/100th/1000th depending on input (valid: 10, 100, 1000)
- */
-function round_Nth($val, $round_to)
-{
-    if (($round_to == '10') || ($round_to == '100') || ($round_to == '1000')) {
-        $diff = $val % $round_to;
-        if ($diff >= ($round_to / 2)) {
-            $ret = $val + ($round_to - $diff);
-        } else {
-            $ret = $val - $diff;
-        }
-
-        return $ret;
-    }
-} // end round_Nth
 
 function is_customoid_graph($type, $subtype)
 {

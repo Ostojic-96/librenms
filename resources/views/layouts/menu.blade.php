@@ -294,13 +294,13 @@
                                 <li role="presentation" class="divider"></li>
                                 @if($service_counts['warning'])
                                     <li><a href="{{ url('services/state=warning') }}"><i
-                                                class="fa fa-bell fa-col-warning fa-fw fa-lg"
+                                                class="fa fa-bell text-warning fa-fw fa-lg"
                                                 aria-hidden="true"></i> {{ __('Warning :service_count', ['service_count' => $service_counts['warning']]) }}
                                         </a></li>
                                 @endif
                                 @if($service_counts['critical'])
                                     <li><a href="{{ url('services/state=critical') }}"><i
-                                                class="fa fa-bell fa-col-danger fa-fw fa-lg"
+                                                class="fa fa-bell text-danger fa-fw fa-lg"
                                                 aria-hidden="true"></i> {{ __('Critical :service_count', ['service_count' => $service_counts['critical']]) }}
                                         </a></li>
                                 @endif
@@ -535,7 +535,7 @@
 {{-- Alerts --}}
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-hover="dropdown" data-toggle="dropdown"><i
-                            class="fa fa-exclamation-circle fa-col-{{ $alert_menu_class }} fa-fw fa-lg fa-nav-icons hidden-md"
+                            class="fa fa-exclamation-circle text-{{ $alert_menu_class }} fa-fw fa-lg hidden-md"
                             aria-hidden="true"></i> <span class="hidden-sm">{{ __('Alerts') }}</span></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url('alerts') }}"><i class="fa fa-bell fa-fw fa-lg"
@@ -580,12 +580,12 @@
                         <span class="visible-xs-inline-block">{{ __('User') }}</span>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url('preferences') }}"><i class="fa fa-cog fa-fw fa-lg"
-                                                                  aria-hidden="true"></i> {{ __('My Settings') }}</a></li>
                         <li><a href="{{ url('notifications') }}"><span
                                     class="badge count-notif">{{ $notification_count }}</span> {{ __('Notifications') }}
                             </a></li>
-                        <li role="presentation" class="divider"></li>
+                        <li><a href="{{ route('preferences.index') }}"><i class="fa fa-cog fa-fw fa-lg"
+                                                                  aria-hidden="true"></i> {{ __('My Settings') }}</a></li>
+                        <li><x-theme-toggle /></li>
                         <li>
                             <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                 <i class="fa fa-sign-out fa-fw fa-lg" aria-hidden="true"></i> {{ __('Logout') }}
@@ -748,7 +748,7 @@
             valueKey: 'name',
             templates: {
                 header: '<h5><strong>&nbsp;Devices</strong></h5>',
-                suggestion: Handlebars.compile('<p><a href="@{{url}}"><img src="@{{device_image}}" style="float: left; min-height: 32px; margin-right: 5px;"> <small><strong>@{{name}}</strong> | @{{device_os}} | @{{version}} <br /> @{{device_hardware}} with @{{device_ports}} port(s) | @{{location}}</small></a></p>')
+                suggestion: Handlebars.compile('<p><a href="@{{url}}"><img src="@{{device_image}}" class="tw:h-8 tw:float-left  tw:m-1 tw:dark:bg-gray-50 tw:dark:rounded-lg tw:dark:p-1 tw:mr-2"> <small><strong>@{{name}}</strong> | @{{device_os}} | @{{version}} <br /> @{{device_hardware}} with @{{device_ports}} port(s) | @{{location}}</small></a></p>')
             }
         },
         {

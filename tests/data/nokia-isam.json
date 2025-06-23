@@ -1896,7 +1896,7 @@
                     "sensor_divisor": 1,
                     "sensor_multiplier": 1,
                     "sensor_current": 43,
-                    "sensor_limit": 0,
+                    "sensor_limit": 63,
                     "sensor_limit_warn": 0,
                     "sensor_limit_low": -9,
                     "sensor_limit_low_warn": -8,
@@ -1921,7 +1921,7 @@
                     "sensor_divisor": 1,
                     "sensor_multiplier": 1,
                     "sensor_current": 53,
-                    "sensor_limit": 0,
+                    "sensor_limit": 73,
                     "sensor_limit_warn": 0,
                     "sensor_limit_low": -9,
                     "sensor_limit_low_warn": -8,
@@ -2114,5 +2114,18 @@
             ]
         },
         "poller": "matches discovery"
+    },
+    "ipv4-addresses": {
+        "discovery": {
+            "ipv4_addresses": [
+                {
+                    "ipv4_address": "127.0.3.1",
+                    "ipv4_prefixlen": 24,
+                    "context_name": "",
+                    "ipv4_network": "127.0.3.0/24",
+                    "ifIndex": 20972544
+                }
+            ]
+        }
     }
 }

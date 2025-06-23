@@ -108,7 +108,7 @@ class Vrp extends OS implements
         // Walk through the MIB table for transceiver information
         return \SnmpQuery::walk('HUAWEI-ENTITY-EXTENT-MIB::hwOpticalModuleInfoTable')->mapTable(function ($data, $entIndex) use ($entityToIfIndex) {
             // Skip inactive transceivers
-            if ($data['HUAWEI-ENTITY-EXTENT-MIB::hwEntityOpticalType'] === 'inactive') {
+            if (isset($data['HUAWEI-ENTITY-EXTENT-MIB::hwEntityOpticalType']) && $data['HUAWEI-ENTITY-EXTENT-MIB::hwEntityOpticalType'] === 'inactive') {
                 return null;
             }
             if ($data['HUAWEI-ENTITY-EXTENT-MIB::hwEntityOpticalMode'] == 1) {
@@ -116,7 +116,7 @@ class Vrp extends OS implements
             }
 
             // Skip when it is not a plugable optic
-            if ($data['HUAWEI-ENTITY-EXTENT-MIB::hwEntityOpticalType'] === '0') {
+            if (isset($data['HUAWEI-ENTITY-EXTENT-MIB::hwEntityOpticalType']) && $data['HUAWEI-ENTITY-EXTENT-MIB::hwEntityOpticalType'] === '0') {
                 return null;
             }
 
@@ -144,6 +144,10 @@ class Vrp extends OS implements
             }
             if ($wavelength <= 0) {
                 $wavelength = null;
+            }
+
+            if (! isset($entityToIfIndex[$entIndex])) {
+                return null;
             }
             $ifIndex = $entityToIfIndex[$entIndex];
             $port_id = PortCache::getIdFromIfIndex($ifIndex, $this->getDeviceId());
@@ -299,7 +303,7 @@ class Vrp extends OS implements
                 'NUMCLIENTS' => $numClients,
             ];
 
-            $tags = compact('rrd_def');
+            $tags = ['rrd_def' => $rrd_def];
             $datastore->put($this->getDeviceArray(), 'vrp', $tags, $fields);
 
             $aps = new Collection;
@@ -382,7 +386,7 @@ class Vrp extends OS implements
                         'interference' => $interference,
                     ];
 
-                    $tags = compact('name', 'radionum', 'rrd_name', 'rrd_def');
+                    $tags = ['name' => $name, 'radionum' => $radionum, 'rrd_name' => $rrd_name, 'rrd_def' => $rrd_def];
                     $datastore->put($this->getDeviceArray(), 'arubaap', $tags, $fields);
 
                     $aps->push(new AccessPoint([
@@ -683,7 +687,7 @@ class Vrp extends OS implements
                         //->addDataset('MaxRtt', 'GAUGE', 0, 300000)
                         ->addDataset('ProbeResponses', 'GAUGE', 0, 300000)
                         ->addDataset('ProbeLoss', 'GAUGE', 0, 300000);
-                    $tags = compact('rrd_name', 'rrd_def', 'sla_nr', 'rtt_type');
+                    $tags = ['rrd_name' => $rrd_name, 'rrd_def' => $rrd_def, 'sla_nr' => $sla_nr, 'rtt_type' => $rtt_type];
                     app('Datastore')->put($device, 'sla', $tags, $icmp);
                     $collected = array_merge($collected, $icmp);
                     break;
