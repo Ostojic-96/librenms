@@ -38,6 +38,7 @@ the values we expect to see the data in:
 | voltage                         | V                           |
 | waterflow                       | l/m                         |
 | percent                         | %                           |
+| signal_loss                       | dB                          |
 
 ### Simple health discovery
 
@@ -432,7 +433,7 @@ media won't have optical readings, so if the media type isn't fiber we skip disc
 The next two lines build the OIDs for getting the optical receive and transmit values using the
 `$index` for the port. Using the OIDs the program gets the current receive and transmit values
 ($currentRx and $currentTx repectively) to verify the values are not 0. Not all SFPs collect digital
-optical monitoring (DOM) data, in the case of Adva the value of both transmit and recieve will be
+optical monitoring (DOM) data, in the case of Adva the value of both transmit and receive will be
 0 if DOM is not available. While 0 is a valid value for optical power, its extremely unlikely that
 both will be 0 if DOM is present. If DOM is not available, then the program stops discovery for
 that port. Note that while this is the case with Adva, other vendors may differ in how they handle
@@ -501,6 +502,7 @@ Ber:
 Eer:
 Waterflow:
 Percent:
+Signal_loss:
 
 >> Runtime for discovery module 'sensors': 3.9340 seconds with 190024 bytes
 >> SNMP: [16/3.89s] MySQL: [36/0.03s] RRD: [0/0.00s]

@@ -24,7 +24,6 @@ use LibreNMS\Exceptions\HostExistsException;
 use LibreNMS\Exceptions\InvalidIpException;
 use LibreNMS\OS;
 use LibreNMS\Util\IP;
-use LibreNMS\Util\IPv4;
 use LibreNMS\Util\Number;
 use LibreNMS\Util\UserFuncHelper;
 
@@ -143,6 +142,8 @@ function discover_device(&$device, $force_module = false)
     $helper = new \LibreNMS\Polling\ConnectivityHelper(DeviceCache::getPrimary());
 
     if (! $helper->isUp()) {
+        Log::error('%RDOWN%n', ['color' => true]);
+
         return false;
     }
 
@@ -520,7 +521,7 @@ function discovery_process($os, $sensor_class, $pre_cache)
                     if (isset($data['multiplier'])) {
                         $multiplier = YamlDiscovery::replaceValues('multiplier', $index, $count, $data, $pre_cache);
                     } elseif (isset($sensor_options['multiplier'])) {
-                        $multipler = $sensor_options['multiplier'];
+                        $multiplier = $sensor_options['multiplier'];
                     } else {
                         $multiplier = 1;
                     }
