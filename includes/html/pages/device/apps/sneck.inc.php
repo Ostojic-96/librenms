@@ -7,8 +7,7 @@ $link_array = [
     'app' => 'sneck',
 ];
 
-$sneck_data = $app->app_id;
-if (isset($sneck_data)) {
+if (isset($app->data['checks'])) {
     $checks = $app->data['checks'] ?? [];
     $checks_list = array_keys($checks);
     $debugs = $app->data['debugs'] ?? [];
@@ -20,8 +19,8 @@ if (isset($sneck_data)) {
             echo 'Check Info: ';
             foreach ($checks_list as $index => $check) {
                 $label = $vars['sneck_check'] == $check
-                    ? '<span class="pagemenu-selected">' . htmlspecialchars($check) . '</span>'
-                    : htmlspecialchars($check);
+                    ? '<span class="pagemenu-selected">' . htmlspecialchars((string) $check) . '</span>'
+                    : htmlspecialchars((string) $check);
 
                 echo generate_link($label, $link_array, ['sneck_check' => $check]) . "\n";
 
@@ -36,8 +35,8 @@ if (isset($sneck_data)) {
             echo 'Debug Info: ';
             foreach ($debugs_list as $index => $debug) {
                 $label = $vars['sneck_debug'] == $debug
-                    ? '<span class="pagemenu-selected">' . htmlspecialchars($debug) . '</span>'
-                    : htmlspecialchars($debug);
+                    ? '<span class="pagemenu-selected">' . htmlspecialchars((string) $debug) . '</span>'
+                    : htmlspecialchars((string) $debug);
 
                 echo generate_link($label, $link_array, ['sneck_debug' => $debug]) . "\n";
 
@@ -49,8 +48,8 @@ if (isset($sneck_data)) {
             }
         }
         // run time
-        if (isset($app->data['data']['run_time'])) {
-            echo '<b>Runtime:</b> ' . htmlspecialchars($app->data['data']['run_time']) . " seconds<br>\n";
+        if (isset($app->data['run_time'])) {
+            echo '<b>Runtime:</b> ' . htmlspecialchars($app->data['run_time']) . " seconds<br>\n";
         }
         print_optionbar_end();
     }
@@ -75,8 +74,8 @@ if ((isset($vars['sneck_check']) && isset($app->data['checks'][$vars['sneck_chec
         echo '<b>Ran:</b> ' . htmlspecialchars($app->data[$type][$type_name]['ran']) . "<br>\n";
     }
     // run time
-    if (isset($app->data['data'][$type][$type_name]['run_time'])) {
-        echo '<b>Runtime:</b> ' . htmlspecialchars($app->data['data'][$type][$type_name]['run_time']) . " seconds<br>\n";
+    if (isset($app->data[$type][$type_name]['run_time'])) {
+        echo '<b>Runtime:</b> ' . htmlspecialchars($app->data[$type][$type_name]['run_time']) . " seconds<br>\n";
     }
     // exit code
     if (isset($app->data[$type][$type_name]['exit'])) {
@@ -101,7 +100,7 @@ if ((isset($vars['sneck_check']) && isset($app->data['checks'][$vars['sneck_chec
         'sneck_time' => 'Time Difference',
     ];
 
-    if (isset($app->data['data']['checks'])) {
+    if (isset($app->data['runtime'])) {
         $graphs['sneck_runtime'] = 'Runtime';
     }
 
@@ -126,11 +125,11 @@ if ((isset($vars['sneck_check']) && isset($app->data['checks'][$vars['sneck_chec
     }
 
     // print returned all info from sneck with alert info broken out
-    if (isset($sneck_data)) {
+    if (isset($app->data)) {
         print_optionbar_start();
         echo 'Last Return...<br>';
         echo "<b>Alert(s):</b><br>\n";
-        echo str_replace("\n", "<br>\n", htmlspecialchars($app->data['alertString'])) . "<br><br>\n";
+        echo str_replace("\n", "<br>\n", htmlspecialchars((string) $app->data['alertString'])) . "<br><br>\n";
         echo "<b>Raw JSON:</b><br>\n";
         echo "<pre>\n" . htmlspecialchars(json_encode($app->data, JSON_PRETTY_PRINT)) . "</pre>\n";
         print_optionbar_end();
