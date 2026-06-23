@@ -7,7 +7,7 @@
         <tr>
             <th data-column-id="status" data-formatter="status" data-width="7px" data-searchable="false">{{ $detailed ? 'S.' : __('Status') }}</th>
             <th data-column-id="device_id" data-width="5px" data-visible="{{ $detailed ? 'true' : 'false' }}">{{ __('Id') }}</th>
-            <th data-column-id="maintenance" data-width="5px" data-searchable="false" data-formatter="maintenance" data-visible="{{ $detailed ? 'true' : 'false' }}">{{ $detailed ? 'M.' : __('Maintenance') }}</th>
+            {{-- <th data-column-id="maintenance" data-width="5px" data-searchable="false" data-formatter="maintenance" data-visible="{{ $detailed ? 'true' : 'false' }}">{{ $detailed ? 'M.' : __('Maintenance') }}</th> --}}
             <th data-column-id="icon" data-width="70px" data-searchable="false" data-formatter="icon" data-visible="{{ $detailed ? 'true' : 'false' }}">{{ __('Vendor') }}</th>
             <th data-column-id="display" data-order="asc" data-formatter="device">{{ __('Device') }}</th>
             <th data-column-id="metrics" data-width="{{ $detailed ? '100px' : '150px' }}" data-sortable="false" data-searchable="false" data-visible="{{ $detailed ? 'true' : 'false' }}">{{ __('Metrics') }}</th>
@@ -35,12 +35,6 @@
             },
             "icon": function (column, row) {
                 return "<span class=\"device-table-icon tw:dark:bg-gray-50 tw:dark:rounded-lg tw:dark:p-2\">" + row.icon + "</span>";
-            },
-            "maintenance": function (column, row) {
-                if (row.maintenance) {
-                    return "<span title=\"Scheduled Maintenance\" class=\"glyphicon glyphicon-wrench\"></span>";
-                }
-                return '';
             },
             "device": function (column, row) {
                 return "<span>" + row.hostname + "</span>";
