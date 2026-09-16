@@ -181,16 +181,6 @@ alert_transport_map:
     - { Field: target_type, Type: varchar(16), 'Null': false, Extra: '' }
   Indexes:
     PRIMARY: { Name: PRIMARY, Columns: [id], Unique: true, Type: BTREE }
-api_tokens:
-  Columns:
-    - { Field: id, Type: 'int unsigned', 'Null': false, Extra: auto_increment }
-    - { Field: user_id, Type: 'int unsigned', 'Null': false, Extra: '' }
-    - { Field: token_hash, Type: varchar(255), 'Null': true, Extra: '' }
-    - { Field: description, Type: varchar(100), 'Null': false, Extra: '' }
-    - { Field: disabled, Type: tinyint, 'Null': false, Extra: '', Default: '0' }
-  Indexes:
-    PRIMARY: { Name: PRIMARY, Columns: [id], Unique: true, Type: BTREE }
-    api_tokens_token_hash_unique: { Name: api_tokens_token_hash_unique, Columns: [token_hash], Unique: true, Type: BTREE }
 applications:
   Columns:
     - { Field: app_id, Type: 'int unsigned', 'Null': false, Extra: auto_increment }
@@ -1682,6 +1672,7 @@ pollers:
     - { Field: last_polled, Type: datetime, 'Null': false, Extra: '' }
     - { Field: devices, Type: 'int unsigned', 'Null': false, Extra: '' }
     - { Field: time_taken, Type: double, 'Null': false, Extra: '' }
+    - { Field: poller_details, Type: longtext, 'Null': true, Extra: '' }
   Indexes:
     PRIMARY: { Name: PRIMARY, Columns: [id], Unique: true, Type: BTREE }
     pollers_poller_name_unique: { Name: pollers_poller_name_unique, Columns: [poller_name], Unique: true, Type: BTREE }
@@ -1691,6 +1682,7 @@ poller_cluster:
     - { Field: node_id, Type: varchar(255), 'Null': false, Extra: '' }
     - { Field: poller_name, Type: varchar(255), 'Null': false, Extra: '' }
     - { Field: poller_version, Type: varchar(255), 'Null': false, Extra: '', Default: '' }
+    - { Field: poller_details, Type: longtext, 'Null': true, Extra: '' }
     - { Field: poller_groups, Type: varchar(255), 'Null': false, Extra: '', Default: '' }
     - { Field: last_report, Type: datetime, 'Null': false, Extra: '' }
     - { Field: master, Type: tinyint, 'Null': false, Extra: '' }
